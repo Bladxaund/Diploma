@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/2.unity
     guid: 051b7e5635b6ce241901c9dd0828ff30
   - enabled: 1
-    path: Assets/Scenes/ChoseLevels.unity
+    path: Assets/Scenes/ChoseLevelsFirst.unity
     guid: faf2c17fab9034c4c8cc778b75c73698
   - enabled: 1
     path: Assets/Scenes/3.unity
@@ -23,4 +23,16 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/4.unity
     guid: a47026c3460ae8c4a8242bb60fa32533
+  - enabled: 1
+    path: Assets/Scenes/FinalScene.unity
+    guid: fe3e5b15057cc1a40b8b61528ce63bce
+  - enabled: 1
+    path: Assets/Scenes/ChoseLevels 1.unity
+    guid: 2c9c59bbd2cb5b9458ebc1a8c2e78852
+  - enabled: 1
+    path: Assets/Scenes/ChoseLevels 2.unity
+    guid: 125b8c253f88c7044be62d8f52436121
+  - enabled: 1
+    path: Assets/Scenes/ChoseLevels 3.unity
+    guid: 017c9c6c4cfb8114da5439c8a3819e51
   m_configObjects: {}

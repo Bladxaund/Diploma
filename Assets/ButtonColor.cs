@@ -127,6 +127,7 @@ public class ButtonColor : MonoBehaviour
         var addCountScore = isWin ? 20 : -10;
         Timer.TimeFreeze = true;
         countScore += addCountScore;
+        SumScore.ScoreLevel3 += addCountScore;
         text.text = $"Score: {countScore}";
         Ui.text = $"Score: {countScore}";
         //ClearButtons();

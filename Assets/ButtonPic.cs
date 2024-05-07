@@ -16,6 +16,7 @@ namespace DefaultNamespace
         [SerializeField] private TextMeshProUGUI Ui;
         [SerializeField] private int MaxScoreRound;
         [SerializeField] private int ErrorScore;
+        [SerializeField] private ScorePanel scoreView;
 
 
         private GameCard _selectedCard;
@@ -23,6 +24,7 @@ namespace DefaultNamespace
         private int _currentPairs;
         private int curentScore;
         private int curentAddScore;
+        private bool pairOpened = false;
 
         private void Start()
         {
@@ -60,6 +62,10 @@ namespace DefaultNamespace
 
         public void OnCardClicked(GameCard card)
         {
+            if (pairOpened)
+            {
+                return;
+            }
             if (_selectedCard == null)
             {
                 _selectedCard = card;
@@ -67,6 +73,7 @@ namespace DefaultNamespace
             }
             else
             {
+                
                 card.RevealCard();
                 if (_selectedCard.currentImage.sprite == card.currentImage.sprite && _selectedCard != card)
                 {
@@ -78,6 +85,7 @@ namespace DefaultNamespace
                     if (_currentPairs == 0)
                     {
                         curentScore += curentAddScore;
+                        SumScore.ScoreLevel2 += curentScore;
                         UpdateScore();
                         Start();
                     }
@@ -86,6 +94,7 @@ namespace DefaultNamespace
                 {
                     // �� �������� ����������, ����������� ������ ����� ����� ��������
                     curentAddScore -= ErrorScore;
+                    pairOpened = true;
                     StartCoroutine(HideCardsAfterDelay(_selectedCard, card));
                     _selectedCard = null;
                 }
@@ -98,11 +107,15 @@ namespace DefaultNamespace
             yield return new WaitForSeconds(3);
             card1.HideCard();
             card2.HideCard();
+            pairOpened = false;
         }
+        
         private void UpdateScore()
         {
+            Debug.Log("[eq");
             text.text = $"Score: {curentScore}";
             Ui.text = $"Score: {curentScore}";
+            scoreView.AcitivatePanel(curentScore);
         }
     }
     [Serializable]

@@ -75,6 +75,11 @@ public class NumbersGame : MonoBehaviour
   
     void CheckButton(int index)
     {
+        if (buttons[index].text.gameObject.activeSelf)
+        {
+            return;
+        }
+
         Debug.Log($"Натиснута кнопка: {index}");
         playerSiquence.Add(index);
         Debug.Log($"curentIndex = {currentInputIndex}");
@@ -113,6 +118,7 @@ public class NumbersGame : MonoBehaviour
         var addCountScore = isWin ? 20 : -10;
         Timer.TimeFreeze = true;
         countScore += addCountScore;
+        Timer.Scores = countScore;
         text.text = $"Score: {countScore}";
         Ui.text = $"Score: {countScore}";
         ClearButtons();

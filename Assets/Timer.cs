@@ -10,6 +10,7 @@ public class Timer : MonoBehaviour
     public float GameTime;
     public bool TimeFreeze = true;
     public TextMeshProUGUI text;
+    public int Scores;
     
     // Start is called before the first frame update
     void Start()
@@ -29,6 +30,8 @@ public class Timer : MonoBehaviour
             }
             else
             {
+                SumScore.ScoreLevel1 += Scores;
+                Scores = 0;
                 panel.SetActive(true);
             }
         }

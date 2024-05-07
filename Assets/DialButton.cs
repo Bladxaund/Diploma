@@ -10,9 +10,13 @@ using TMPro;
 
 public class DialButton : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI text;
+   // [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private TextMeshProUGUI Ui;
+    [SerializeField] GameObject panel;
+    [SerializeField] private ScorePanel scoreView;
     int countScore = 0;
+    public TextMeshProUGUI text;
+    public TextMeshProUGUI finalScoreText;
     public List<GameObject> Stages; 
     public List<Button> ExampleButtons;
     public List<Button> OrigButtons;
@@ -27,12 +31,15 @@ public class DialButton : MonoBehaviour
     private static Color normalColor = Color.red;
     private static Color baseColor = Color.blue;
     private int speed = 2;
-    private GameState gameState = GameState.Demo;
+    private GameState gameState = GameState.Freeze;
+    public int Scores;
+    private int demoCount = 0;
     private ColorBlock highlighted = new ColorBlock { 
         normalColor = normalColor,
         colorMultiplier = 1,
         highlightedColor = normalColor,
         selectedColor = normalColor
+
     };
     private ColorBlock normal = new ColorBlock
     {
@@ -52,11 +59,13 @@ public class DialButton : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GenerateNewSequence();    
+        
+        
     }
 
     public void RepeatSequence()
     {
+        demoCount++;
         timer.Start();
         flashingTimer.Start();
         gameState = GameState.Demo;
@@ -108,7 +117,7 @@ public class DialButton : MonoBehaviour
         {
             userSequence.Clear();
             OrigButtons[index].colors = highlighted;
-            RepeatSequence();
+            flashingTimer.Restart();
             gameState = GameState.IncorrectInput;
         }
         else
@@ -120,73 +129,100 @@ public class DialButton : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (gameState == GameState.Demo)
+        if(!DialogState.dialogOpen && gameState == GameState.Freeze)
         {
+            GenerateNewSequence();
+        }
+        else
+        {
+            if (currentStage >= 5)
+            {
+                SumScore.ScoreLevel4 += Scores;
+                Scores = 0;
+                finalScoreText.text = SumScore.Score.ToString();
+                panel.SetActive(true);
+                scoreView.AcitivatePanel(countScore);
+            }
+            else if (gameState == GameState.Demo)
+            {
 
-            var elapsedSeconds = timer.Elapsed.Seconds / speed; // ( /2) - сделать медленее
-            if(elapsedSeconds < exampleSequence.Count)
-            {             
-                if (elapsedSeconds > 0)
+                var elapsedSeconds = timer.Elapsed.Seconds / speed; // ( /2) - сделать медленее
+                if (elapsedSeconds < exampleSequence.Count)
                 {
-                    ExampleButtons[exampleSequence[elapsedSeconds - 1]].GetComponent<Button>().colors = normal;                  
+                    if (elapsedSeconds > 0)
+                    {
+                        ExampleButtons[exampleSequence[elapsedSeconds - 1]].GetComponent<Button>().colors = normal;
+                    }
+                    if (flashingTimer.ElapsedMilliseconds > 200)
+                    {
+                        UnityEngine.Debug.Log(flashingTimer.ElapsedMilliseconds);
+                        ExampleButtons[exampleSequence[elapsedSeconds]].GetComponent<Button>().colors = highlighted;
+                    }
+                    if (flashingTimer.Elapsed.Seconds >= speed)
+                    {
+                        flashingTimer.Restart();
+                    }
                 }
-                if(flashingTimer.ElapsedMilliseconds > 200)
+                else
                 {
-                    UnityEngine.Debug.Log(flashingTimer.ElapsedMilliseconds);
-                    ExampleButtons[exampleSequence[elapsedSeconds]].GetComponent<Button>().colors = highlighted;
+                    timer.Reset();
+                    flashingTimer.Reset();
+                    ExampleButtons[exampleSequence[elapsedSeconds - 1]].GetComponent<Button>().colors = normal;
+                    if (demoCount < 1)
+                    {
+                        RepeatSequence();
+                    }
+                    else
+                    {
+                        gameState = GameState.Game;
+                        demoCount = 0;
+                    }
                 }
-                if (flashingTimer.Elapsed.Seconds >= speed) 
+            }
+            else if (gameState == GameState.Game)
+            {
+                if (exampleSequence.Count == userSequence.Count)
+                {
+                    //  sequenceLenght += 2;
+                    GenerateNewSequence();
+                    countScore += 50;
+                    SumScore.ScoreLevel4 += 50;
+                    if (currentStageErrors >= 1 && currentStageErrors <= 4)
+                    {
+                        Stages[currentStage].GetComponent<Image>().color = Color.yellow;
+                    }
+                    else if (currentStageErrors > 4)
+                    {
+                        Stages[currentStage].GetComponent<Image>().color = Color.red;
+                    }
+                    else if (currentStageErrors == 0)
+                    {
+                        Stages[currentStage].GetComponent<Image>().color = Color.blue;
+                    }
+                    currentStageErrors = 0;
+                    currentStage += 1;
+                    text.text = $"Score: {countScore}";
+                    Ui.text = $"Score: {countScore}";
+
+                }
+            }
+            else if (gameState == GameState.IncorrectInput)
+            {
+                if (flashingTimer.ElapsedMilliseconds > 2500) // добавить 2 к 500
                 {
                     flashingTimer.Restart();
+                    gameState = GameState.Demo;
+                    currentStageErrors += 1;
+                    countScore -= 15;
+                    SumScore.ScoreLevel4 -= 15;
+                    text.text = $"Score: {countScore}";
+                    Ui.text = $"Score: {countScore}";
+                    demoCount--;
+                    RepeatSequence();
                 }
-            }
-            else
-            {
-                timer.Reset();
-                flashingTimer.Reset();
-                gameState = GameState.Game;
-                ExampleButtons[exampleSequence[elapsedSeconds - 1]].GetComponent<Button>().colors = normal;
-            }
-        }
-        else if(gameState == GameState.Game)
-         {
-          if(exampleSequence.Count == userSequence.Count)
-            {
-              //  sequenceLenght += 2;
-                GenerateNewSequence();
-                countScore += 100;
-                if(currentStageErrors >= 1 && currentStageErrors <= 4)
-                {
-                    Stages[currentStage].GetComponent<SpriteRenderer>().color = Color.yellow;
-                }
-                else if(currentStageErrors > 4)
-                {
-                    Stages[currentStage].GetComponent<SpriteRenderer>().color = Color.red;
-                }
-                else if (currentStageErrors == 0)
-                {
-                    Stages[currentStage].GetComponent<SpriteRenderer>().color = Color.blue;
-                }
-                currentStageErrors = 0;
-                currentStage += 1;  
-                text.text = $"Score: {countScore}";
-                Ui.text = $"Score: {countScore}";
-
-            }
-        }
-        else if (gameState == GameState.IncorrectInput)
-        {
-            if(flashingTimer.ElapsedMilliseconds > 500)
-            {
-                flashingTimer.Restart();
-                gameState = GameState.Demo;
-                currentStageErrors += 1;
-                countScore -= 15;
-                text.text = $"Score: {countScore}";
-                Ui.text = $"Score: {countScore}";
-
             }
         }
         
+      
     }
 }
